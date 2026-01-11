@@ -110,9 +110,10 @@ if total_eur > 0:
                 # Смален текст на един ред
                 st.success(f"**РЕСТО:** {diff_eur:.2f} EUR / {diff_bgn:.2f} BGN")
             else:
-                st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
+                st.warning(f"**Недостигат:** {total_eur - given:.2f} €")
                 
             
+
 
 
 
