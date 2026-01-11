@@ -7,23 +7,28 @@ st.set_page_config(
     layout="centered"
 )
 
-# Изчистен дизайн без сини цветове и емоджита в сметката
+# Оптимизация на разстоянията за компактен вид
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    .stNumberInput input { font-size: 18px !important; }
+    
+    /* Сближаване на елементите */
+    .stNumberInput { margin-bottom: -15px !important; }
+    
     .item-calculation { 
-        font-size: 18px; 
+        font-size: 16px; 
         font-weight: bold; 
         color: #31333F; 
-        background-color: #f0f2f6; 
-        padding: 8px; 
-        border-radius: 4px;
-        text-align: center;
-        margin-top: -5px;
+        padding: 0px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        text-align: left;
     }
+    
+    /* Смаляване на разстоянието между редовете */
+    .element-container { margin-bottom: 5px !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -72,16 +77,14 @@ for i in range(1, n_items + 1):
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    # Показваме изчислението само ако са попълнени и двете
+    # Резултат веднага под полетата
     if price is not None and qty is not None:
         item_total = price * qty
         total_eur += item_total
-        # Чист текст без пръстчета и цветове
         st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
-    
-    st.divider()
 
 # --- ОБЩИ РЕЗУЛТАТИ ---
+st.divider()
 total_bgn = total_eur * 1.95583
 
 col_res1, col_res2 = st.columns(2)
@@ -112,6 +115,7 @@ if total_eur > 0:
             st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
         elif given:
             st.warning(f"Още {total_eur - given:.2f} €")
+
 
 
 
