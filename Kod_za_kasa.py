@@ -42,7 +42,7 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="prima
 
 st.divider()
 
-n_items = st.number_input("Брой видове стоки:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
+n_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
@@ -53,7 +53,7 @@ for i in range(1, n_items + 1):
     
     with col_price:
         price = st.number_input(
-            f"Цена € (Арт. {i})", 
+            f"Цена в евро € (Арт. {i})", 
             min_value=0.0, step=0.10, format="%.2f", 
             value=None, 
             placeholder="0.00",
@@ -106,6 +106,7 @@ if total_eur > 0:
             else:
                 st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
             
+
 
 
 
