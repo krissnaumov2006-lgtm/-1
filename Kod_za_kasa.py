@@ -1,13 +1,17 @@
 import streamlit as st
 
+# Настройки на приложението
 st.set_page_config(page_title="Levro", page_icon="💳", layout="centered")
 
-# Скриване на излишните менюта
+# Скриване на излишните менюта за чист App вид
 st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}</style>", unsafe_allow_html=True)
 
 st.title("💳 Levro")
+st.write("Твоят дигитален касиер")
 
-if st.button("🔄 НОВА СМЕТКА", use_container_width=True):
+# --- БУТОН ЗА НОВА СМЕТКА ---
+if st.button("🔄 НОВА СМЕТКА (Изчисти всичко)", use_container_width=True):
+    # Изчистване на всички въведени данни
     for key in st.session_state.keys():
         del st.session_state[key]
     st.rerun()
@@ -15,59 +19,59 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True):
 st.divider()
 
 # --- ВЪВЕЖДАНЕ НА АРТИКУЛИ ---
-num_rows = st.number_input("Брой различни видове стоки:", min_value=1, step=1, value=1)
+# Използваме value=None и placeholder, за да не се налага триене на нули
+num_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1)
 
 total_eur = 0.0
 
-st.write("### Сметка:")
-# Използваме колони за цена и количество на един ред
-for i in range(1, num_rows + 1):
-    col_price, col_qty = st.columns([2, 1]) # Цената е по-широка от количеството
-    
-    with col_price:
-        price = st.number_input(
-            f"Цена {i} (€)", 
-            min_value=0.0, 
-            format="%.2f", 
-            value=None, 
-            placeholder="0.00", 
-            key=f"p_{i}"
-        )
-    
-    with col_qty:
-        qty = st.number_input(
-            f"Брой {i}", 
-            min_value=1, 
-            step=1, 
-            value=1, 
-            key=f"q_{i}"
-        )
-    
+st.write("### Въведи цени (€):")
+for i in range(1, num_items + 1):
+    # С настройка value=None, полето е празно при цъкване
+    price = st.number_input(
+        f"Артикул {i}", 
+        min_value=0.0, 
+        step=0.01, 
+        format="%.2f", 
+        value=None, 
+        placeholder="Пиши цена тук...",
+        key=f"item_{i}"
+    )
     if price:
-        total_eur += (price * qty)
+        total_eur += price
 
 # --- РЕЗУЛТАТИ ---
 st.divider()
 total_bgn = total_eur * 1.95583
 
-st.metric("ОБЩО ЕВРО", f"{total_eur:.2f} €")
-st.metric("ОБЩО ЛЕВА", f"{total_bgn:.2f} лв.")
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("ОБЩО EUR", f"{total_eur:.2f} €")
+with col2:
+    st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
 # --- ПЛАЩАНЕ ---
 if total_eur > 0:
+    st.markdown("---")
     st.subheader("💶 Плащане")
-    currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True)
+    currency = st.radio("Валута на плащане:", ("BGN", "EUR"), horizontal=True)
     
     if currency == "BGN":
-        given = st.number_input("Дадени от клиента (BGN):", min_value=0.0, value=None, placeholder="0.00", step=0.50)
+        # Отново value=None за лесно писане
+        given = st.number_input("Сума от клиента (BGN):", min_value=0.0, value=None, placeholder="Въведи сума...", step=0.50)
         if given and given >= total_bgn:
             change_bgn = given - total_bgn
             st.success(f"РЕСТО: {change_bgn:.2f} лв. / {change_bgn/1.95583:.2f} €")
-    else:
-        given = st.number_input("Дадени от клиента (EUR):", min_value=0.0, value=None, placeholder="0.00", step=0.50)
+        elif given:
+            st.warning(f"Недостиг: {total_bgn - given:.2f} лв.")
+            
+    else: # EUR
+        given = st.number_input("Сума от клиента (EUR):", min_value=0.0, value=None, placeholder="Въведи сума...", step=0.50)
         if given and given >= total_eur:
             change_eur = given - total_eur
             st.success(f"РЕСТО: {change_eur:.2f} € / {change_eur*1.95583:.2f} лв.")
+        elif given:
+            st.warning(f"Недостиг: {total_eur - given:.2f} €")
+
 
 
 
