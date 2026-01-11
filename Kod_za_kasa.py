@@ -92,7 +92,7 @@ if total_eur > 0:
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
     
     if currency == "BGN":
-        given = st.number_input("Дадени лв:", min_value=0.0, step=1.0, value=None, placeholder="0.00", key=f"gb_{st.session_state.reset_counter}")
+        given = st.number_input("Сума платена от клиента в лева:", min_value=0.0, step=1.0, value=None, placeholder="0.00", key=f"gb_{st.session_state.reset_counter}")
         if given is not None:
             if given >= total_bgn:
                 diff_bgn = given - total_bgn
@@ -102,7 +102,7 @@ if total_eur > 0:
             else:
                 st.warning(f"**Оставащи:** {total_bgn - given:.2f} лв.")
     else:
-        given = st.number_input("Дадени €:", min_value=0.0, step=1.0, value=None, placeholder="0.00", key=f"ge_{st.session_state.reset_counter}")
+        given = st.number_input("Сума платена от клиента в евро €:", min_value=0.0, step=1.0, value=None, placeholder="0.00", key=f"ge_{st.session_state.reset_counter}")
         if given is not None:
             if given >= total_eur:
                 diff_eur = given - total_eur
@@ -113,6 +113,7 @@ if total_eur > 0:
                 st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
                 
             
+
 
 
 
