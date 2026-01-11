@@ -6,7 +6,7 @@ st.set_page_config(page_title="Levro", page_icon="💳", layout="centered")
 # Скриване на излишните менюта за чист App вид
 st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# Инициализиране на брояч за нулиране (ако не съществува)
+# Инициализиране на брояч за нулиране
 if 'reset_counter' not in st.session_state:
     st.session_state.reset_counter = 0
 
@@ -15,9 +15,7 @@ st.write("Твоят дигитален касиер")
 
 # --- БУТОН ЗА НОВА СМЕТКА ---
 if st.button("🔄 НОВА СМЕТКА (Изчисти всичко)", use_container_width=True):
-    # Увеличаваме брояча, за да принудим Streamlit да пресъздаде всички полета празни
     st.session_state.reset_counter += 1
-    # Изчистваме старите данни от паметта
     for key in list(st.session_state.keys()):
         if key != 'reset_counter':
             del st.session_state[key]
@@ -26,24 +24,49 @@ if st.button("🔄 НОВА СМЕТКА (Изчисти всичко)", use_con
 st.divider()
 
 # --- ВЪВЕЖДАНЕ НА АРТИКУЛИ ---
-# Добавяме суфикс от брояча към ключа на всяко поле
-num_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"num_{st.session_state.reset_counter}")
+num_items = st.number_input("Брой различни видове стоки:", min_value=1, step=1, value=1, key=f"num_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
-st.write("### Въведи цени (€):")
+st.write("### Сметка:")
+
+# Заглавия на колоните за по-добра прегледност
+h_col1, h_col2, h_col3 = st.columns([3, 2, 2])
+with h_col1: st.caption("Цена за 1 бр. (€)")
+with h_col2: st.caption("Количество")
+with h_col3: st.caption("Общо")
+
 for i in range(1, num_items + 1):
-    price = st.number_input(
-        f"Артикул {i}", 
-        min_value=0.0, 
-        step=0.01, 
-        format="%.2f", 
-        value=None, 
-        placeholder="Пиши цена тук...",
-        key=f"item_{i}_{st.session_state.reset_counter}"
-    )
+    col1, col2, col3 = st.columns([3, 2, 2])
+    
+    with col1:
+        price = st.number_input(
+            f"Арт. {i}", 
+            min_value=0.0, 
+            step=0.01, 
+            format="%.2f", 
+            value=None, 
+            placeholder="0.00", 
+            key=f"price_{i}_{st.session_state.reset_counter}",
+            label_visibility="collapsed" # Скриваме етикета, за да е на един ред
+        )
+    
+    with col2:
+        qty = st.number_input(
+            f"Брой {i}", 
+            min_value=1, 
+            step=1, 
+            value=1, 
+            key=f"qty_{i}_{st.session_state.reset_counter}",
+            label_visibility="collapsed"
+        )
+    
     if price:
-        total_eur += price
+        item_total = price * qty
+        total_eur += item_total
+        with col3:
+            # Показваме междинната сума за този ред
+            st.write(f"**{item_total:.2f} €**")
 
 # --- РЕЗУЛТАТИ ---
 st.divider()
@@ -75,8 +98,8 @@ if total_eur > 0:
             change_eur = given - total_eur
             st.success(f"РЕСТО: {change_eur:.2f} € / {change_eur*1.95583:.2f} лв.")
         elif given:
-            # ТУК БЕШЕ ГРЕШКАТА - ВЕЧЕ Е КОРИГИРАНО:
             st.warning(f"Недостиг: {total_eur - given:.2f} €")
+
 
 
 
