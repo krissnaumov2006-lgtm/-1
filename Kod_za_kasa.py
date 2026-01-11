@@ -7,21 +7,22 @@ st.set_page_config(
     layout="centered"
 )
 
-# Скриване на излишните менюта
+# Изчистен дизайн без сини цветове и емоджита в сметката
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stNumberInput input { font-size: 18px !important; }
-    .item-row { 
-        font-size: 16px; 
+    .item-calculation { 
+        font-size: 18px; 
         font-weight: bold; 
-        color: #1E88E5; 
+        color: #31333F; 
         background-color: #f0f2f6; 
-        padding: 10px; 
-        border-radius: 5px;
-        margin-top: -10px;
+        padding: 8px; 
+        border-radius: 4px;
+        text-align: center;
+        margin-top: -5px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -52,7 +53,6 @@ for i in range(1, n_items + 1):
     col_price, col_qty = st.columns([3, 2])
     
     with col_price:
-        # Празно поле за цена
         price = st.number_input(
             f"Цена € (Арт. {i})", 
             min_value=0.0, 
@@ -63,7 +63,6 @@ for i in range(1, n_items + 1):
         )
     
     with col_qty:
-        # Празно поле за брой (value=None)
         qty = st.number_input(
             f"Брой", 
             min_value=1, 
@@ -73,11 +72,12 @@ for i in range(1, n_items + 1):
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    # Смятаме само ако И ДВЕТЕ полета са попълнени
+    # Показваме изчислението само ако са попълнени и двете
     if price is not None and qty is not None:
         item_total = price * qty
         total_eur += item_total
-        st.markdown(f"<div class='item-row'>👉 {qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
+        # Чист текст без пръстчета и цветове
+        st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
     
     st.divider()
 
@@ -112,6 +112,7 @@ if total_eur > 0:
             st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
         elif given:
             st.warning(f"Още {total_eur - given:.2f} €")
+
 
 
 
