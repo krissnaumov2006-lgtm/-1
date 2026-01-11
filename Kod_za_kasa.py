@@ -7,7 +7,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Оптимизация на интерфейса
+# Оптимизация на интерфейса за тъмна тема и мобилен екран
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -17,7 +17,7 @@ st.markdown("""
     /* Сближаване на полетата */
     .stNumberInput { margin-bottom: -10px !important; }
     
-    /* Бял текст за сметката */
+    /* Стил за изчислението - Бял текст */
     .item-calculation { 
         font-size: 18px; 
         font-weight: bold; 
@@ -27,10 +27,11 @@ st.markdown("""
         margin-bottom: 15px;
         text-align: left;
     }
-    
-    /* Увеличаване на бутоните + и - за по-лесно натискане на телефон */
-    button[step="1"], button[step="0.01"] {
-        min-height: 40px !important;
+
+    /* Правим бутоните + и - по-големи и удобни */
+    .stNumberInput button {
+        height: 45px !important;
+        width: 45px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -50,8 +51,7 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="prima
 
 st.divider()
 
-# --- ВЪВЕЖДАНЕ НА ОБЩИЯ БРОЙ ВИДОВЕ СТОКИ ---
-# Тук също имаш + и - за добавяне на нови редове
+# --- 1. РЕГУЛИРАНЕ НА БРОЙ РЕДОВЕ ---
 n_items = st.number_input(
     "Брой различни стоки:", 
     min_value=1, 
@@ -68,28 +68,28 @@ for i in range(1, n_items + 1):
     col_price, col_qty = st.columns([3, 2])
     
     with col_price:
-        # Цена със стъпка 0.10 или ръчно въвеждане
+        # 2. РЕГУЛИРАНЕ НА ЦЕНА С + И -
         price = st.number_input(
             f"Цена € (Арт. {i})", 
             min_value=0.0, 
-            step=0.10, 
+            step=0.10, # Стъпка за бутоните
             format="%.2f", 
-            value=None, 
-            placeholder="0.00 €", 
+            value=0.00, # Стойност по подразбиране 0, за да работят бутоните веднага
             key=f"p_{i}_{st.session_state.reset_counter}"
         )
     
     with col_qty:
-        # Бройка със стъпка 1 (бутони + и -)
+        # 3. РЕГУЛИРАНЕ НА КОЛИЧЕСТВО С + И -
         qty = st.number_input(
             f"Брой", 
             min_value=1, 
             step=1,
-            value=1, # Сложих 1 по подразбиране, за да работят + и - веднага
+            value=1, 
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    if price is not None:
+    # Смятаме общото за реда
+    if price > 0:
         item_total = price * qty
         total_eur += item_total
         st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
@@ -104,7 +104,7 @@ with col_res1:
 with col_res2:
     st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
-# --- ПЛАЩАНЕ ---
+# --- 4. РЕГУЛИРАНЕ НА ПЛАЩАНЕТО ---
 if total_eur > 0:
     st.subheader("💶 Плащане")
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
@@ -113,33 +113,35 @@ if total_eur > 0:
         given = st.number_input(
             "Сума от клиента (лв):", 
             min_value=0.0, 
-            step=1.0, # Бутони за левове
-            value=None, 
-            placeholder="Въведи сума...", 
+            step=1.0, # Стъпка от 1 лев
+            format="%.2f",
+            value=0.00, 
             key=f"gb_{st.session_state.reset_counter}"
         )
-        if given and given >= total_bgn:
+        if given >= total_bgn:
             change_bgn = given - total_bgn
             st.success(f"РЕСТО: {change_bgn:.2f} лв.")
             st.info(f"В ЕВРО: {change_bgn/1.95583:.2f} €")
-        elif given:
+        elif given > 0:
             st.warning(f"Още {total_bgn - given:.2f} лв.")
             
     else:
         given = st.number_input(
             "Сума от клиента (€):", 
             min_value=0.0, 
-            step=1.0, # Бутони за евро
-            value=None, 
-            placeholder="Въведи сума...", 
+            step=1.0, # Стъпка от 1 евро
+            format="%.2f",
+            value=0.00, 
             key=f"ge_{st.session_state.reset_counter}"
         )
-        if given and given >= total_eur:
+        if given >= total_eur:
             change_eur = given - total_eur
             st.success(f"РЕСТО: {change_eur:.2f} €")
             st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
-        elif given:
+        elif given > 0:
             st.warning(f"Още {total_eur - given:.2f} €")
+            
+
 
 
 
