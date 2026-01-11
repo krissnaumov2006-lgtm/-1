@@ -3,10 +3,10 @@ import streamlit as st
 # Настройки на приложението
 st.set_page_config(page_title="Levro", page_icon="💳", layout="centered")
 
-# Скриване на излишните менюта
+# Скриване на излишните менюта за чист App вид
 st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# Инициализиране на брояч за нулиране
+# Инициализиране на брояч за нулиране (ако не съществува)
 if 'reset_counter' not in st.session_state:
     st.session_state.reset_counter = 0
 
@@ -15,9 +15,9 @@ st.write("Твоят дигитален касиер")
 
 # --- БУТОН ЗА НОВА СМЕТКА ---
 if st.button("🔄 НОВА СМЕТКА (Изчисти всичко)", use_container_width=True):
-    # Увеличаваме брояча, което кара Streamlit да пресъздаде полетата като чисто нови
+    # Увеличаваме брояча, за да принудим Streamlit да пресъздаде всички полета празни
     st.session_state.reset_counter += 1
-    # Изчистваме всички записани стойности
+    # Изчистваме старите данни от паметта
     for key in list(st.session_state.keys()):
         if key != 'reset_counter':
             del st.session_state[key]
@@ -26,8 +26,8 @@ if st.button("🔄 НОВА СМЕТКА (Изчисти всичко)", use_con
 st.divider()
 
 # --- ВЪВЕЖДАНЕ НА АРТИКУЛИ ---
-# Добавяме суфикс към ключа, базиран на брояча за нулиране
-num_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"num_items_{st.session_state.reset_counter}")
+# Добавяме суфикс от брояча към ключа на всяко поле
+num_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"num_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
@@ -40,7 +40,7 @@ for i in range(1, num_items + 1):
         format="%.2f", 
         value=None, 
         placeholder="Пиши цена тук...",
-        key=f"item_{i}_{st.session_state.reset_counter}" # Динамичен ключ
+        key=f"item_{i}_{st.session_state.reset_counter}"
     )
     if price:
         total_eur += price
@@ -75,7 +75,9 @@ if total_eur > 0:
             change_eur = given - total_eur
             st.success(f"РЕСТО: {change_eur:.2f} € / {change_eur*1.95583:.2f} лв.")
         elif given:
-            st.warning(f"Недостиг: {total_eur - given:.2f} €").2f} €")
+            # ТУК БЕШЕ ГРЕШКАТА - ВЕЧЕ Е КОРИГИРАНО:
+            st.warning(f"Недостиг: {total_eur - given:.2f} €")
+
 
 
 
