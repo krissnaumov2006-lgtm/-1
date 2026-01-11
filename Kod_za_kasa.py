@@ -61,17 +61,13 @@ for i in range(1, n_items + 1):
         )
     
     with col_qty:
-        # ПРОМЯНА: Вече няма стойност 1 по подразбиране (value=None)
         qty = st.number_input(
             f"Брой", 
-            min_value=1, step=1, 
-            value=None, 
-            placeholder="0",
+            min_value=1, step=1, value=1, 
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    # Смятаме само ако и двете полета са попълнени от потребителя
-    if price is not None and qty is not None:
+    if price:
         item_total = price * qty
         total_eur += item_total
         st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
@@ -88,7 +84,7 @@ with col_res1:
 with col_res2:
     st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
-# --- ПЛАЩАНЕ И РЕСТО ---
+# --- ПЛАЩАНЕ И РЕСТО (ОБНОВЕНО) ---
 if total_eur > 0:
     st.subheader("💶 Плащане")
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
@@ -110,6 +106,7 @@ if total_eur > 0:
             else:
                 st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
             
+
 
 
 
