@@ -34,7 +34,7 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="prima
 st.divider()
 
 # --- ВЪВЕЖДАНЕ ---
-n_items = st.number_input("Брой различни стоки:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
+n_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
@@ -94,10 +94,11 @@ if total_eur > 0:
         given = st.number_input("Сума от клиента (€):", min_value=0.0, value=None, placeholder="Въведи сума...", key=f"ge_{st.session_state.reset_counter}")
         if given and given >= total_eur:
             change_eur = given - total_eur
-            st.success(f"РЕСТО: {change_eur:.2f} €")
-            st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
+            st.success(f"РЕСТО В ЕВРО: {change_eur:.2f} €")
+            st.info(f"РЕСТО В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
         elif given:
             st.warning(f"Още {total_eur - given:.2f} €")
+
 
 
 
