@@ -3,7 +3,7 @@ import streamlit as st
 # 1. Настройки за мобилни устройства
 st.set_page_config(page_title="Levro", layout="centered")
 
-# CSS за изчистен дизайн и компактност
+# CSS за изчистен дизайн, компактност и бял текст
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -21,6 +21,7 @@ st.markdown("""
         text-align: left;
     }
 
+    /* Увеличени бутони + и - за лесно ползване на телефон */
     div[data-baseweb="input"] {
         height: 45px !important;
     }
@@ -52,6 +53,7 @@ for i in range(1, n_items + 1):
     col_price, col_qty = st.columns([3, 2])
     
     with col_price:
+        # Цена: Празно поле, за да няма триене на нули
         price = st.number_input(
             f"Цена € (Арт. {i})", 
             min_value=0.0, step=0.10, format="%.2f", 
@@ -61,15 +63,15 @@ for i in range(1, n_items + 1):
         )
     
     with col_qty:
+        # Брой: По подразбиране 1, с активни + и -
         qty = st.number_input(
             f"Брой", 
             min_value=1, step=1, 
-            value=None, # Вече е празно по подразбиране според предното искане
-            placeholder="0",
+            value=1, 
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    if price is not None and qty is not None:
+    if price is not None:
         item_total = price * qty
         total_eur += item_total
         st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
@@ -86,7 +88,7 @@ with col_res1:
 with col_res2:
     st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
-# --- ПЛАЩАНЕ И РЕСТО (ОБНОВЕН ВИД) ---
+# --- ПЛАЩАНЕ И РЕСТО ---
 if total_eur > 0:
     st.subheader("💶 Плащане")
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
@@ -109,7 +111,9 @@ if total_eur > 0:
                 st.success(f"### РЕСТО:\n### {diff_eur:.2f} EUR\n### {diff_bgn:.2f} BGN")
             else:
                 st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
+                
             
+
 
 
 
