@@ -63,11 +63,13 @@ for i in range(1, n_items + 1):
     with col_qty:
         qty = st.number_input(
             f"Брой", 
-            min_value=1, step=1, value=1, 
+            min_value=1, step=1, 
+            value=None, # Вече е празно по подразбиране според предното искане
+            placeholder="0",
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    if price:
+    if price is not None and qty is not None:
         item_total = price * qty
         total_eur += item_total
         st.markdown(f"<div class='item-calculation'>{qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
@@ -84,7 +86,7 @@ with col_res1:
 with col_res2:
     st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
-# --- ПЛАЩАНЕ И РЕСТО (ОБНОВЕНО) ---
+# --- ПЛАЩАНЕ И РЕСТО (ОБНОВЕН ВИД) ---
 if total_eur > 0:
     st.subheader("💶 Плащане")
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
@@ -94,7 +96,8 @@ if total_eur > 0:
         if given is not None:
             if given >= total_bgn:
                 diff_bgn = given - total_bgn
-                st.success(f"**РЕСТО:** {diff_bgn:.2f} лв. / {diff_bgn / 1.95583:.2f} €")
+                diff_eur = diff_bgn / 1.95583
+                st.success(f"### РЕСТО:\n### {diff_eur:.2f} EUR\n### {diff_bgn:.2f} BGN")
             else:
                 st.warning(f"**Оставащи:** {total_bgn - given:.2f} лв.")
     else:
@@ -102,10 +105,12 @@ if total_eur > 0:
         if given is not None:
             if given >= total_eur:
                 diff_eur = given - total_eur
-                st.success(f"**РЕСТО:** {diff_eur:.2f} € / {diff_eur * 1.95583:.2f} лв.")
+                diff_bgn = diff_eur * 1.95583
+                st.success(f"### РЕСТО:\n### {diff_eur:.2f} EUR\n### {diff_bgn:.2f} BGN")
             else:
                 st.warning(f"**Оставащи:** {total_eur - given:.2f} €")
             
+
 
 
 
