@@ -4,19 +4,17 @@ import streamlit as st
 st.set_page_config(
     page_title="Levro", 
     page_icon="💳", 
-    layout="centered", # Центрира съдържанието за по-добър фокус
-    initial_sidebar_state="collapsed"
+    layout="centered"
 )
 
-# Скриваме излишните елементи на Streamlit, за да прилича на истинско App-че
+# Оптимизация на интерфейса
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    .stNumberInput input {
-        font-size: 18px !important; /* По-голям текст за лесно четене на телефон */
-    }
+    .stNumberInput input { font-size: 18px !important; }
+    .item-row { font-size: 16px; font-weight: bold; color: #1E88E5; margin-bottom: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -25,7 +23,7 @@ if 'reset_counter' not in st.session_state:
 
 st.title("💳 Levro")
 
-# --- БОЛД БУТОН ЗА НОВА СМЕТКА (ЛЕСЕН ЗА НАТИСКАНЕ) ---
+# --- БУТОН ЗА НОВА СМЕТКА ---
 if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="primary"):
     st.session_state.reset_counter += 1
     for key in list(st.session_state.keys()):
@@ -36,17 +34,16 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="prima
 st.divider()
 
 # --- ВЪВЕЖДАНЕ ---
-n_items = st.number_input("Брой видове стоки:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
+n_items = st.number_input("Брой различни стоки:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
 st.write("### Сметка")
 
 for i in range(1, n_items + 1):
-    # Използваме 2 колони вместо 3 за телефон, за да не са твърде тесни
-    col_main, col_qty = st.columns([3, 2])
+    col_price, col_qty = st.columns([3, 2])
     
-    with col_main:
+    with col_price:
         price = st.number_input(
             f"Цена € (Арт. {i})", 
             min_value=0.0, 
@@ -64,14 +61,15 @@ for i in range(1, n_items + 1):
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    if price:
+    # Показваме резултата за конкретния артикул под него
+    if price is not None:
         item_total = price * qty
         total_eur += item_total
-        # Показваме междинната сума точно под всяка позиция в малък текст
-        st.caption(f"Междинно: {item_total:.2f} €")
+        # Форматиран надпис: "3 бр. х 2.00 € = 6.00 €"
+        st.markdown(f"<div class='item-row'>👉 {qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
+    st.divider()
 
-# --- РЕЗУЛТАТИ (ГОЛЕМИ И ЯСНИ) ---
-st.divider()
+# --- ОБЩИ РЕЗУЛТАТИ ---
 total_bgn = total_eur * 1.95583
 
 st.metric("ОБЩО ЕВРО", f"{total_eur:.2f} €")
@@ -79,15 +77,9 @@ st.metric("ОБЩО ЛЕВА", f"{total_bgn:.2f} лв.")
 
 # --- ПЛАЩАНЕ ---
 if total_eur > 0:
-    st.markdown("---")
     st.subheader("💶 Плащане")
-    # Използваме селектор с големи опции
-    currency = st.segmented_control(
-        "Избери валута:", 
-        options=["BGN", "EUR"], 
-        default="BGN",
-        key=f"curr_{st.session_state.reset_counter}"
-    )
+    # Вече използваме стандартния radio за по-добра стабилност на всички телефони
+    currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
     
     if currency == "BGN":
         given = st.number_input("Сума от клиента (лв):", min_value=0.0, value=None, placeholder="Въведи сума...", key=f"gb_{st.session_state.reset_counter}")
