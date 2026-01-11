@@ -31,7 +31,7 @@ num_items = st.number_input("Брой артикули:", min_value=1, step=1, v
 
 total_eur = 0.0
 
-st.write("### Въведи цени (€):")
+st.write("### Въведи цени в евро (EUR €):")
 for i in range(1, num_items + 1):
     price = st.number_input(
         f"Артикул {i}", 
@@ -77,6 +77,7 @@ if total_eur > 0:
         elif given:
             # ТУК БЕШЕ ГРЕШКАТА - ВЕЧЕ Е КОРИГИРАНО:
             st.warning(f"Недостиг: {total_eur - given:.2f} €")
+
 
 
 
