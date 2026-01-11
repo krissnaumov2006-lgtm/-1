@@ -7,14 +7,22 @@ st.set_page_config(
     layout="centered"
 )
 
-# Оптимизация на интерфейса
+# Скриване на излишните менюта
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .stNumberInput input { font-size: 18px !important; }
-    .item-row { font-size: 16px; font-weight: bold; color: #1E88E5; margin-bottom: 10px; }
+    .item-row { 
+        font-size: 16px; 
+        font-weight: bold; 
+        color: #1E88E5; 
+        background-color: #f0f2f6; 
+        padding: 10px; 
+        border-radius: 5px;
+        margin-top: -10px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -34,7 +42,7 @@ if st.button("🔄 НОВА СМЕТКА", use_container_width=True, type="prima
 st.divider()
 
 # --- ВЪВЕЖДАНЕ ---
-n_items = st.number_input("Брой артикули:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
+n_items = st.number_input("Брой различни стоки:", min_value=1, step=1, value=1, key=f"n_{st.session_state.reset_counter}")
 
 total_eur = 0.0
 
@@ -44,6 +52,7 @@ for i in range(1, n_items + 1):
     col_price, col_qty = st.columns([3, 2])
     
     with col_price:
+        # Празно поле за цена
         price = st.number_input(
             f"Цена € (Арт. {i})", 
             min_value=0.0, 
@@ -54,31 +63,36 @@ for i in range(1, n_items + 1):
         )
     
     with col_qty:
+        # Празно поле за брой (value=None)
         qty = st.number_input(
             f"Брой", 
             min_value=1, 
-            value=1, 
+            step=1,
+            value=None, 
+            placeholder="0",
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    # Показваме резултата за конкретния артикул под него
-    if price is not None:
+    # Смятаме само ако И ДВЕТЕ полета са попълнени
+    if price is not None and qty is not None:
         item_total = price * qty
         total_eur += item_total
-        # Форматиран надпис: "3 бр. х 2.00 € = 6.00 €"
         st.markdown(f"<div class='item-row'>👉 {qty} бр. х {price:.2f} € = {item_total:.2f} €</div>", unsafe_allow_html=True)
+    
     st.divider()
 
 # --- ОБЩИ РЕЗУЛТАТИ ---
 total_bgn = total_eur * 1.95583
 
-st.metric("ОБЩО ЕВРО", f"{total_eur:.2f} €")
-st.metric("ОБЩО ЛЕВА", f"{total_bgn:.2f} лв.")
+col_res1, col_res2 = st.columns(2)
+with col_res1:
+    st.metric("ОБЩО EUR", f"{total_eur:.2f} €")
+with col_res2:
+    st.metric("ОБЩО BGN", f"{total_bgn:.2f} лв.")
 
 # --- ПЛАЩАНЕ ---
 if total_eur > 0:
     st.subheader("💶 Плащане")
-    # Вече използваме стандартния radio за по-добра стабилност на всички телефони
     currency = st.radio("Валута:", ("BGN", "EUR"), horizontal=True, key=f"curr_{st.session_state.reset_counter}")
     
     if currency == "BGN":
@@ -94,10 +108,11 @@ if total_eur > 0:
         given = st.number_input("Сума от клиента (€):", min_value=0.0, value=None, placeholder="Въведи сума...", key=f"ge_{st.session_state.reset_counter}")
         if given and given >= total_eur:
             change_eur = given - total_eur
-            st.success(f"РЕСТО В ЕВРО: {change_eur:.2f} €")
-            st.info(f"РЕСТО В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
+            st.success(f"РЕСТО: {change_eur:.2f} €")
+            st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
         elif given:
             st.warning(f"Още {total_eur - given:.2f} €")
+
 
 
 
