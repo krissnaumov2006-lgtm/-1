@@ -7,27 +7,28 @@ st.set_page_config(
     layout="centered"
 )
 
-# Оптимизация на разстоянията за компактен вид
+# Оптимизация на интерфейса - Бял текст за сметката и компактност
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Сближаване на елементите */
+    /* Сближаване на полетата */
     .stNumberInput { margin-bottom: -15px !important; }
     
+    /* Стил за изчислението - БЯЛ ЦВЯТ */
     .item-calculation { 
-        font-size: 16px; 
+        font-size: 18px; 
         font-weight: bold; 
-        color: #31333F; 
+        color: #FFFFFF; /* Бял цвят за по-добра видимост на тъмен фон */
         padding: 0px;
         margin-top: 5px;
         margin-bottom: 15px;
         text-align: left;
     }
     
-    /* Смаляване на разстоянието между редовете */
+    /* Смаляване на общите разстояния */
     .element-container { margin-bottom: 5px !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -77,7 +78,7 @@ for i in range(1, n_items + 1):
             key=f"q_{i}_{st.session_state.reset_counter}"
         )
     
-    # Резултат веднага под полетата
+    # Резултатът вече е с бели букви
     if price is not None and qty is not None:
         item_total = price * qty
         total_eur += item_total
@@ -115,6 +116,7 @@ if total_eur > 0:
             st.info(f"В ЛЕВА: {change_eur * 1.95583:.2f} лв.")
         elif given:
             st.warning(f"Още {total_eur - given:.2f} €")
+
 
 
 
